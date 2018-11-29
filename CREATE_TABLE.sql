@@ -98,13 +98,37 @@
 		//  USER FUNCTIONS
 		//
 		//	TO DO : 
-		//		-edit_answer (Avance) -> test
-		//		-CreateTag (Admin) -> test + (RETURN ID) COMMENT FAIRE ?!?!?
 		//		-Changer la reputation d un user -> test trigger
 		//		-Apres changement de la reputation, changement de statut -> test trigger
 		//		-Mise à jour du DSD
 		//
 		*********************************/
+
+		/* TRIGGER TO CHECK IF WE HAVE TO UPDATE A USER RANK OR NOT */
+		CREATE OR REPLACE FUNCTION ProjetSQL.set_rank() RETURNS TRIGGER AS $$
+		DECLARE 
+			_rank ProjetSQL.status_rep;
+			_reputation INTEGER;
+		BEGIN
+			_rank := (SELECT u.rank FROM ProjetSQL.users u WHERE u.user_id = _user_to_up);
+			_reputation := (SELECT u.reputation FROM ProjetSQL.users u WHERE u.user_id = _user_to_up);
+
+			IF(_rank = 'expert') THEN
+				RAISE EXCEPTION 'On ne peut pas monter - diminuer un expert';
+			END IF;
+
+			IF(OLD.rank = 'normal' AND _reputation = 50) THEN
+				UPDATE ProjetSQL.users SET rank = 'advanced' WHERE user_id = OLD.user_id;
+			END IF;
+
+			IF(OLD.rank = 'advanced' AND _reputation = 100) THEN
+				UPDATE ProjetSQL.users SET rank = 'expert' WHERE user_id = OLD.user_id;
+			END IF;
+		END;
+		$$ LANGUAGE plpgsql;
+
+		CREATE TRIGGER up_rank_trigger AFTER UPDATE ON ProjetSQL.users FOR EACH ROW EXECUTE PROCEDURE ProjetSQL.set_rank();
+
 
 		/* INSERT A VOTE IN THE ANWSER_VOTES TABLE */
 		CREATE OR REPLACE FUNCTION ProjetSQL.vote(INTEGER, INTEGER, INTEGER) RETURNS INTEGER AS $$
@@ -191,7 +215,7 @@
 
 			_user_rank := (SELECT u.rank FROM ProjetSQL.users u WHERE u.user_id = _edit_user_id);
 			_question_user_id := (SELECT q.user_id FROM ProjetSQL.questions q WHERE q.question_id = _edited_question_id);
-			/* IF TE USER RANK IS 'normal' HE CAN ONLY EDIT HIS QUESTIONS */
+			/* IF THE USER RANK IS 'normal' HE CAN ONLY EDIT HIS QUESTIONS */
 			IF(_user_rank = 'normal' AND _edit_user_id != _question_user_id) 
 				THEN RAISE EXCEPTION 'Statut normal, tu ne peux modifier que TES question !'; 
 			END IF;
@@ -217,26 +241,28 @@
 		$$ LANGUAGE plpgsql;
 
 		/* EDIT ANSWER */
-		CREATE OR REPLACE FUNCTION ProjetSQL.edit_answer(INTEGER, VARCHAR(200)) RETURNS INTEGER AS $$
+		CREATE OR REPLACE FUNCTION ProjetSQL.edit_answer(INTEGER, INTEGER, VARCHAR(200)) RETURNS INTEGER AS $$
 		DECLARE
 			_edited_answer_id ALIAS FOR $1;
-			_new_content ALIAS FOR $2;
+			_edit_user_id ALIAS FOR $2;
+			_new_content ALIAS FOR $3;
 			_user_rank ProjetSQL.status_rep;
 			_answer_user_id INTEGER;
 
 		BEGIN
-			_user_rank := (SELECT u.rank FROM ProjetSQL.users u LEFT OUTER JOIN ProjetSQL.answers a ON u.user_id = a.user_id WHERE a.answer_id = _edited_answer_id);
+			_user_rank := (SELECT u.rank FROM ProjetSQL.users u WHERE u.user_id = _edit_user_id);
 			_answer_user_id :=  (SELECT a.user_id FROM ProjetSQL.answers a WHERE a.answer_id = _edited_answer_id);
 
 			IF(_new_content IS NULL) 
 				THEN RAISE EXCEPTION 'Modification du contenu de la reponse par null interdit !';
 			END IF;
 
+			/* IF THE USER RANK IS 'normal' HE CAN ONLY EDIT HIS ANSWERS */
 			IF(_user_rank = 'normal' AND _edit_user_id != _answer_user_id) 
 				THEN RAISE EXCEPTION 'Statut normal, tu ne peux modifier que TES reponses';
 			END IF;
 
-			UPDATE ProjetSQL.answers SET content = _new_content WHERE edited_answer_id = _answer_id;
+			UPDATE ProjetSQL.answers SET content = _new_content WHERE answer_id = _edited_answer_id;
 
 			RETURN _edited_answer_id;
 		END;
@@ -301,8 +327,9 @@
 		CREATE OR REPLACE FUNCTION ProjetSQL.create_tag(VARCHAR(10)) RETURNS INTEGER AS $$
 		DECLARE
 			_tag_name ALIAS FOR $1;
+			_id_tag INTEGER;
 		BEGIN
-			INSERT INTO ProjetSQL.tags(name) VALUES (_tag_name);
-			RETURN -1************;
+			INSERT INTO ProjetSQL.tags(name) VALUES (_tag_name) RETURNING tag_id INTO _id_tag;
+			RETURN _id_tag;
 		END;
 		$$ LANGUAGE plpgsql;
