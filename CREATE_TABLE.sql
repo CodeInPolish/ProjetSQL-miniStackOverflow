@@ -98,8 +98,8 @@
 		//  USER FUNCTIONS
 		//
 		//	TO DO : 
-		//		-Changer la reputation d un user -> test trigger
-		//		-Apres changement de la reputation, changement de statut -> test trigger
+		//		
+		//
 		//		-Mise à jour du DSD
 		//
 		*********************************/
@@ -110,20 +110,17 @@
 			_rank ProjetSQL.status_rep;
 			_reputation INTEGER;
 		BEGIN
-			_rank := (SELECT u.rank FROM ProjetSQL.users u WHERE u.user_id = _user_to_up);
-			_reputation := (SELECT u.reputation FROM ProjetSQL.users u WHERE u.user_id = _user_to_up);
+			_rank := (SELECT u.rank FROM ProjetSQL.users u WHERE u.user_id = OLD.user_id);
+			_reputation := (SELECT u.reputation FROM ProjetSQL.users u WHERE u.user_id = OLD.user_id);
 
-			IF(_rank = 'expert') THEN
-				RAISE EXCEPTION 'On ne peut pas monter - diminuer un expert';
-			END IF;
-
-			IF(OLD.rank = 'normal' AND _reputation = 50) THEN
+			IF(OLD.rank = 'normal' AND _reputation >= 50) THEN
 				UPDATE ProjetSQL.users SET rank = 'advanced' WHERE user_id = OLD.user_id;
 			END IF;
 
-			IF(OLD.rank = 'advanced' AND _reputation = 100) THEN
+			IF(OLD.rank = 'advanced' AND _reputation >= 100) THEN
 				UPDATE ProjetSQL.users SET rank = 'expert' WHERE user_id = OLD.user_id;
 			END IF;
+			RETURN NEW;
 		END;
 		$$ LANGUAGE plpgsql;
 
