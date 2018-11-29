@@ -1,14 +1,14 @@
 fonction utilisateur normal
 1) CreateUser
 2) CreateQuestion 
-4) AddTag
-5) CreateAnswer 
+3) AddTag
+4) CreateAnswer 
+5) GetQuestion
+6) ConnectUser
+
 7) ViewQuestionsByDate
 8) ViewUserHistory
 9) ViewQuestionsByTag
-10) GetUser
-11) GetQuestion
-12) ConnectUser
 
 fonction user avancé
 1) Vote
