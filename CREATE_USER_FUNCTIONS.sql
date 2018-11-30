@@ -4,23 +4,33 @@
 //
 ***/
 
-CREATE OR REPLACE VIEW ProjetSQL.questionsViewByDate(date, question_id, content, create_user, edit_date, edit_user, title) AS
-SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title
-FROM ProjetSQL.questions qt, ProjetSQL.users u1, ProjetSQL.users u2
-WHERE qt.user_id = u1.user_id AND qt.edit_user_id = u2.user_id AND qt.closed = FALSE
-ORDER BY qt.date DESC;
+CREATE OR REPLACE VIEW ProjetSQL.questionsViewByDate(date, question_id, question, create_user, edit_date, edit_user, title) AS
+SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u1.pseudo AS edit_user, qt.title
+FROM ProjetSQL.questions qt, ProjetSQL.users u1
+WHERE qt.user_id = u1.user_id AND qt.edit_date IS NULL AND qt.closed = FALSE
+UNION(SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title
+	FROM ProjetSQL.questions qt, ProjetSQL.users u1, ProjetSQL.users u2
+	WHERE qt.user_id=u1.user_id AND u2.user_id = qt.edit_user_id AND qt.edit_date IS NOT NULL AND qt.closed = FALSE
+	ORDER BY qt.date DESC);
 
+	
 CREATE OR REPLACE VIEW ProjetSQL.answersViewByDate AS
 SELECT an.date, an.answer_no, u1.pseudo AS create_user
 FROM ProjetSQL.answers an, ProjetSQL.users u1, ProjetSQL.users u2
 WHERE an.user_id = u1.user_id
 ORDER BY an.date DESC;
 
-CREATE OR REPLACE VIEW ProjetSQL.questionsViewByTag(date, question_id, content, create_user, edit_date, edit_user, title, tag) AS
-SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title, t.name
-FROM ProjetSQL.questions qt, ProjetSQL.users u1, ProjetSQL.users u2, ProjetSQL.tags t, ProjetSQL.tags_question tq
-WHERE qt.user_id = u1.user_id AND qt.edit_user_id = u2.user_id AND qt.question_id=tq.question_id AND tq.tag_id = t.tag_id
+CREATE OR REPLACE VIEW ProjetSQL.questionsViewByTag(date, question_id, question, create_user, edit_date, edit_user, title, tag) AS
+SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u1.pseudo AS edit_user, qt.title, t.name
+FROM ProjetSQL.questions qt, ProjetSQL.users u1, ProjetSQL.tags t, ProjetSQL.tags_question tq
+WHERE qt.user_id = u1.user_id AND qt.question_id=tq.question_id AND tq.tag_id = t.tag_id AND qt.closed = FALSE
 ORDER BY qt.date DESC;
+
+CREATE OR REPLACE VIEW ProjetSQL.QuestionDetails(date, answer_number, answer, create_user, question_id) AS
+SELECT an.date, an.answer_no, an.content,  u1.pseudo AS create_user, an.question_id
+FROM ProjetSQL.answers an, ProjetSQL.users u1, ProjetSQL.users u2
+WHERE an.user_id = u1.user_id
+ORDER BY an.question_id, an.date DESC;
 
 
 /****
@@ -79,7 +89,7 @@ DECLARE
 	tag_id INTEGER;
 BEGIN
 SELECT t.tag_id INTO tag_id FROM ProjetSQL.tags t WHERE t.name=_tag_name;
-INSERT INTO ProjetSQL.tags_question(question_id, tag_id) VALUES (_question_id, _tag_id);
+INSERT INTO ProjetSQL.tags_question(question_id, tag_id) VALUES (_question_id, tag_id);
 RETURN 0;
 END;
 $$LANGUAGE plpgsql;
@@ -96,6 +106,7 @@ INSERT INTO ProjetSQL.answers(content, user_id, question_id) VALUES (_content,_u
 RETURN new_an_id;
 END;
 $$LANGUAGE plpgsql;
+
 
 
 /***
