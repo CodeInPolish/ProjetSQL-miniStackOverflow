@@ -15,7 +15,7 @@ UNION(SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.e
 
 	
 CREATE OR REPLACE VIEW ProjetSQL.answersViewByDate AS
-SELECT an.date, an.answer_no, u1.pseudo AS create_user
+SELECT an.date, an.answer_no, an.content, u1.pseudo AS create_user
 FROM ProjetSQL.answers an, ProjetSQL.users u1, ProjetSQL.users u2
 WHERE an.user_id = u1.user_id
 ORDER BY an.date DESC;
