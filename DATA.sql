@@ -107,10 +107,3 @@ SELECT ProjetSQL.createAnswer('rep4-1',4,1);
 SELECT ProjetSQL.createAnswer('rep4-2',4,2);
 SELECT ProjetSQL.createAnswer('rep4-3',4,3);
 SELECT ProjetSQL.createAnswer('rep4-5',4,5);
-SELECT ProjetSQL.createAnswer('rep4-6',4,6);
-SELECT ProjetSQL.createAnswer('rep4-7',4,7);
-SELECT ProjetSQL.createAnswer('rep4-8',4,8);
-SELECT ProjetSQL.createAnswer('rep4-9',4,9);
-SELECT ProjetSQL.createAnswer('rep4-10',4,10);
-SELECT ProjetSQL.createAnswer('rep4-11',4,11);
-
