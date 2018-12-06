@@ -32,6 +32,23 @@ FROM ProjetSQL.answers an, ProjetSQL.users u1, ProjetSQL.users u2
 WHERE an.user_id = u1.user_id
 ORDER BY an.question_id, an.date DESC;
 
+CREATE OR REPLACE VIEW projetsql.userHistory AS 
+SELECT qt.date, qt.question_id, qt.content AS question, u1.pseudo AS create_user, qt.edit_date, NULL::varchar(30), qt.title, an.user_id AS an_user_id
+   FROM projetsql.questions qt, projetsql.users u1, projetsql.answers an
+  WHERE qt.user_id = u1.user_id AND qt.edit_date IS NULL AND qt.closed = false AND an.user_id = u1.user_id
+UNION(SELECT qt.date, qt.question_id, qt.content AS question, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title, an.user_id AS an_user_id
+   FROM projetsql.questions qt, projetsql.users u1, projetsql.answers an, projetsql.users u2
+  WHERE qt.user_id = u1.user_id AND u2.user_id = qt.edit_user_id AND qt.closed = false AND an.user_id = u1.user_id
+UNION(
+ SELECT qt.date, qt.question_id, qt.content AS question, u1.pseudo AS create_user, qt.edit_date, NULL::varchar(30), qt.title, an.user_id AS an_user_id
+   FROM projetsql.questions qt, projetsql.users u1, projetsql.answers an
+  WHERE qt.user_id = u1.user_id AND qt.edit_date IS NULL AND qt.closed = false AND an.question_id = qt.question_id
+UNION
+(SELECT qt.date, qt.question_id, qt.content AS question, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title, an.user_id AS an_user_id
+   FROM projetsql.questions qt, projetsql.users u1, projetsql.users u2, projetsql.answers an
+  WHERE qt.user_id = u1.user_id AND u2.user_id = qt.edit_user_id AND qt.edit_date IS NOT NULL AND qt.closed = false AND an.question_id = qt.question_id
+  ORDER BY qt.date DESC)));
+
 
 /****
 //
@@ -106,21 +123,3 @@ INSERT INTO ProjetSQL.answers(content, user_id, question_id) VALUES (_content,_u
 RETURN new_an_id;
 END;
 $$LANGUAGE plpgsql;
-
-
-
-/***
-//
-// SELECT qt.date, qt.question_id, qt.user_id, qt.edit_date, qt.edit_user_id, qt.title
-// FROM  ProjetSQL.questions qt 
-// WHERE qt.user_id = 1
-// UNION (SELECT qt.date, qt.question_id, qt.user_id, qt.edit_date, qt.edit_user_id, qt.title
-//	FROM  ProjetSQL.questions qt, ProjetSQL.answers an
-//	WHERE an.user_id = 1 AND an.question_id = qt.question_id)
-***/
-
-/***
-//
-// Triggers
-//
-***/
