@@ -1,28 +1,7 @@
 fonction utilisateur normal
-1) CreateUser
-2) CreateQuestion 
-3) AddTag
-4) CreateAnswer 
 5) GetQuestion
-6) ConnectUser
-
-7) ViewQuestionsByDate
-8) ViewUserHistory
-9) ViewQuestionsByTag
+8) ViewUserHistory -> a tester
+9) ViewQuestionsByTag -> a tester
 
 fonction user avancé
-1) Vote
-2) EditQuestion
-3) EditAnswer
 
-fonction user master
-1) CloseQuestion
-
-triggers
-1) après un vote, changer la réputation d'un user
-2) après un changement de réputation d'un user, vérifier s'il faut changer le status d'un user
-
-fonctions admin
-1) DeleteUser
-2) UpgradeUser
-3) CreateTag
