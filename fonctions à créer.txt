@@ -1,7 +1,0 @@
-fonction utilisateur normal
-5) GetQuestion
-8) ViewUserHistory -> a tester
-9) ViewQuestionsByTag -> a tester
-
-fonction user avancé
-
