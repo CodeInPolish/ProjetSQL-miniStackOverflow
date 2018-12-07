@@ -448,7 +448,8 @@ WHERE qt.user_id = u1.user_id AND qt.edit_date IS NULL AND qt.closed = FALSE
 UNION(SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title
 	FROM ProjetSQL.questions qt, ProjetSQL.users u1, ProjetSQL.users u2
 	WHERE qt.user_id=u1.user_id AND u2.user_id = qt.edit_user_id AND qt.edit_date IS NOT NULL AND qt.closed = FALSE
-	ORDER BY qt.date DESC);
+	)
+ORDER BY date DESC;
 
 	
 CREATE OR REPLACE VIEW ProjetSQL.answersViewByDate AS
@@ -464,7 +465,8 @@ WHERE qt.user_id = u1.user_id AND qt.edit_date IS NULL AND qt.question_id=tq.que
 UNION(SELECT qt.date, qt.question_id, qt.content, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title, t.name
 	FROM ProjetSQL.questions qt, ProjetSQL.users u1, ProjetSQL.tags t, ProjetSQL.tags_question tq, ProjetSQL.users u2
 	WHERE qt.user_id = u1.user_id AND qt.edit_user_id = u2.user_id AND qt.edit_date IS NULL AND 
-	qt.question_id=tq.question_id AND tq.tag_id = t.tag_id AND qt.closed = FALSE);
+	qt.question_id=tq.question_id AND tq.tag_id = t.tag_id AND qt.closed = FALSE)
+ORDER BY date DESC;
 
 CREATE OR REPLACE VIEW ProjetSQL.QuestionDetails(date, answer_number, answer, create_user, question_id) AS
 SELECT an.date, an.answer_no, an.content,  u1.pseudo AS create_user, an.question_id
@@ -472,7 +474,7 @@ FROM ProjetSQL.answers an, ProjetSQL.users u1, ProjetSQL.users u2
 WHERE an.user_id = u1.user_id
 ORDER BY an.question_id, an.date DESC;
 
-CREATE OR REPLACE VIEW projetsql.userHistory AS 
+CREATE OR REPLACE VIEW projetsql.userHistory(date, question_id, question, create_user, edit_date, edit_user, title, an_user_id) AS 
 SELECT qt.date, qt.question_id, qt.content AS question, u1.pseudo AS create_user, qt.edit_date, NULL::varchar(30) AS edit_user, qt.title, an.user_id AS an_user_id
    FROM projetsql.questions qt, projetsql.users u1, projetsql.answers an
   WHERE qt.user_id = u1.user_id AND qt.edit_date IS NULL AND qt.closed = false AND an.user_id = u1.user_id
@@ -487,6 +489,7 @@ UNION
 (SELECT qt.date, qt.question_id, qt.content AS question, u1.pseudo AS create_user, qt.edit_date, u2.pseudo AS edit_user, qt.title, an.user_id AS an_user_id
    FROM projetsql.questions qt, projetsql.users u1, projetsql.users u2, projetsql.answers an
   WHERE qt.user_id = u1.user_id AND u2.user_id = qt.edit_user_id AND qt.edit_date IS NOT NULL AND qt.closed = false AND an.question_id = qt.question_id
-  ORDER BY qt.date DESC)));
+  )))
+ORDER BY date DESC;
 
 
