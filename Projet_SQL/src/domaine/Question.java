@@ -9,8 +9,30 @@ public class Question {
 	private int userId;
 	private Timestamp date;
 	private boolean closed;
+	private Timestamp editDate;
+	private int editUser;
 	
 	
+	public Timestamp getEditDate() {
+		return editDate;
+	}
+
+
+	public void setEditDate(Timestamp editDate) {
+		this.editDate = editDate;
+	}
+
+
+	public int getEditUser() {
+		return editUser;
+	}
+
+
+	public void setEditUser(int editUser) {
+		this.editUser = editUser;
+	}
+
+
 	public int getId() {
 		return id;
 	}
