@@ -42,7 +42,8 @@ public class BackEnd {
 		List<User> users = new ArrayList<User>();
 		
 		try{
-			psGetUsers = conn.prepareStatement("SELECT * FROM projetsql.get_users_view;");
+			psGetUsers = conn.prepareStatement("SELECT u.user_id, u.pseudo, u.email, u.rank, u.reputation, u.closed "
+									+ "FROM projetsql.users u;");
 			ResultSet rs = psGetUsers.executeQuery();
 			while(rs.next()){
 				
@@ -96,7 +97,7 @@ public class BackEnd {
 		return true;
 	}
 
-	public List<Answer> getAnswersFromUser(int userToCheckHistory, Timestamp d1, Timestamp d2) {
+	public static List<Answer> getAnswersFromUser(int userToCheckHistory, Timestamp d1, Timestamp d2) {
 		List<Answer> answersList = new ArrayList<Answer>();
 		
 		try{
@@ -130,7 +131,7 @@ public class BackEnd {
 		return answersList;
 	}
 
-	public List<Question> getQuestionFromUser(int userToCheckHistory, Timestamp d1, Timestamp d2) {
+	public static List<Question> getQuestionFromUser(int userToCheckHistory, Timestamp d1, Timestamp d2) {
 		List<Question> questionsList = new ArrayList<Question>();
 		
 		try{
@@ -161,7 +162,7 @@ public class BackEnd {
 		return questionsList;
 	}
 
-	public boolean addTag(String tagName) {
+	public static boolean addTag(String tagName) {
 		
 		try{
 			psAddTag = conn.prepareStatement("SELECT * FROM projetsql.create_tag(?);");
@@ -174,12 +175,12 @@ public class BackEnd {
 		}
 	}
 	
-	public List<Tag> getTags(){
+	public static List<Tag> getTags(){
 		
 		List<Tag> tags = new ArrayList<Tag>();
 		
 		try{
-			psGetTags = conn.prepareStatement("SELECT * FROM projetsql.get_tags_view;");
+			psGetTags = conn.prepareStatement("SELECT t.tag_id, t.name FROM projetsql.tags t;");
 			
 			ResultSet rs = psGetTags.executeQuery();
 			
@@ -197,14 +198,15 @@ public class BackEnd {
 		return tags;
 	}
 
-	public int connectUser(String pseudo) {
+	public static int connectUser(String pseudo, String pwd) {
 		
 		int id = -1;
 		
 		try{
-			psConnectUser = conn.prepareStatement("SELECT * FROM projetsql.connectUser(?);");
+			psConnectUser = conn.prepareStatement("SELECT * FROM projetsql.connectUser(?,?);");
 			
 			psConnectUser.setString(1, pseudo);
+			psConnectUser.setString(2, pwd); //rajouter le BCrypt
 			
 			ResultSet rs = psConnectUser.executeQuery();
 			
@@ -214,13 +216,13 @@ public class BackEnd {
 			
 		}catch(SQLException e){
 			e.printStackTrace();
-			System.out.println("ERREOR : connecxion rate");
+			System.out.println("ERREOR : connexion rate");
 		}
 		
 		return id;
 	}
 
-	public int insertUser(String pseudo, String pwd, String email) {
+	public static int insertUser(String pseudo, String pwd, String email) {
 		int id = -1;
 		try {
 			psInsertUser = conn.prepareStatement("SELECT * FROM projetsql.CreateUser(?,?,?);");
@@ -242,10 +244,11 @@ public class BackEnd {
 		return id;
 	}
 	
-	public User getUser(int id){
+	public static User getUser(int id){
 		
 		try{
-			psGetUser = conn.prepareStatement("SELECT * FROM projetsql.get_user WHERE user_id = ?;");
+			psGetUser = conn.prepareStatement("SELECT u.user_id, u.pseudo, u.email, u.rank, u.reputation, u.last_vote_date "
+											+"FROM projetsql.users u WHERE u.user_id=?;");
 			
 			psGetUser.setInt(1, id);
 			
@@ -272,10 +275,10 @@ public class BackEnd {
 		return null;
 	}
 
-	public String getPassWord(int userId) {
+	public static String getPassWord(int userId) {
 		
 		try{
-			psGetPassword = conn.prepareStatement("SELECT * FROM projetsql.get_user_password WHERE user_id = ?;");
+			psGetPassword = conn.prepareStatement("SELECT u.password FROM projetsql.users u WHERE u.user_id = ?;");
 			
 			psGetPassword.setInt(1, userId);
 			
@@ -291,7 +294,7 @@ public class BackEnd {
 		return null;
 	}
 
-	public boolean userClosed(String pseudo) {
+	public static boolean userClosed(String pseudo) {
 		
 		try{
 			psGetClosedUser = conn.prepareStatement("SELECT * FROM projetsql.get_user_closed_view WHERE pseudo = ?;");
@@ -309,7 +312,7 @@ public class BackEnd {
 		return false;
 	}
 
-	public boolean unknownUser(String pseudo) {
+	public static boolean unknownUser(String pseudo) {
 		
 		try{
 			psUnknowUser = conn.prepareStatement("SELECT * FROM projetsql.unknow_user WHERE pseudo = ?;");
@@ -330,7 +333,7 @@ public class BackEnd {
 		return false;
 	}
 
-	public int insertQuestion(String title, String content, int userId) {
+	public static int insertQuestion(String title, String content, int userId) {
 		
 		int id = -1;
 		
@@ -353,7 +356,7 @@ public class BackEnd {
 		return id;
 	}
 
-	public List<Question> getQuestions() {
+	public static List<Question> getQuestions(int user_id) {
 		List<Question> list = new ArrayList<Question>();
 		
 		try{

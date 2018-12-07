@@ -22,9 +22,9 @@ public class ConnectionDB {
 		String url = "jdbc:postgresql://localhost:5432/postgres";
 
 		try{
-			conn = DriverManager.getConnection(url, "postgres", "teampae02");
+			conn = DriverManager.getConnection(url, "postgres", "6610");
 		}catch(SQLException e){
-			System.out.println("Erreur. La connexion DB a echouée !");
+			System.out.println("Erreur. La connexion DB a echouï¿½e !");
 			e.printStackTrace();
 			System.exit(0);
 		}
