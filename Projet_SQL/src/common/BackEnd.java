@@ -58,7 +58,7 @@ public class BackEnd {
 			psVote = conn.prepareStatement("SELECT * FROM ProjetSQL.vote(?,?,?,?);");
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			e.getMessage();
 		}
 	}
 
@@ -71,7 +71,7 @@ public class BackEnd {
 			psCreateUser.executeQuery();
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			e.getMessage();
 		}
 	}
 	
@@ -85,7 +85,7 @@ public class BackEnd {
 			if(rs.next()) {
 				hash = rs.getString(1);
 			}
-			if(BCrypt.checkpw(password, hash)) {
+			if(hash!=null && BCrypt.checkpw(password, hash)) {
 				psConnectUser.clearParameters();
 				psConnectUser.setString(1, pseudo);
 				psConnectUser.setString(2, hash);
@@ -96,7 +96,7 @@ public class BackEnd {
 			}
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			e.getMessage();
 		}
 		return index;
 	}
@@ -114,7 +114,7 @@ public class BackEnd {
 			}
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			e.getMessage();
 		}
 		return index;
 	}
@@ -129,7 +129,7 @@ public class BackEnd {
 			psEditQuestion.executeQuery();
 		}
 		catch(SQLException e) {
-			e.printStackTrace();
+			e.getMessage();
 		}
 	}
 	
@@ -141,7 +141,7 @@ public class BackEnd {
 			psCloseQuestion.executeQuery();
 		}
 		catch(SQLException e) {
-			System.out.print("error");
+			e.getMessage();
 		}
 	}
 	
@@ -153,7 +153,7 @@ public class BackEnd {
 			ret = psViewQuestions.executeQuery();
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			e.getMessage();
 		}
 		
 		return ret;
@@ -168,7 +168,7 @@ public class BackEnd {
 			psCreateAnswer.executeQuery();
 		}
 		catch(SQLException e) {
-			System.out.print("error");
+			e.getMessage();
 		}
 	}
 	
@@ -182,7 +182,7 @@ public class BackEnd {
 			psEditAnswer.executeQuery();
 		}
 		catch(SQLException e) {
-			System.out.print("error");
+			e.getMessage();
 		}
 	}
 	
@@ -195,7 +195,7 @@ public class BackEnd {
 			ret = psViewQuestionsByTag.executeQuery();
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			e.getMessage();
 		}
 		
 		return ret;
@@ -212,7 +212,7 @@ public class BackEnd {
 			ret = psViewAnswers.executeQuery();
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			e.getMessage();
 		}
 		
 		return ret;
@@ -227,7 +227,7 @@ public class BackEnd {
 			ret = psViewUserHistory.executeQuery();
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			e.getMessage();
 		}
 		
 		return ret;
@@ -240,7 +240,7 @@ public class BackEnd {
 			ret = psGetTags.executeQuery();
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			e.getMessage();
 		}
 		
 		return ret;
@@ -253,7 +253,7 @@ public class BackEnd {
 			psAddTag.setString(2, tag_name);
 			psAddTag.executeQuery();
 		}catch(SQLException e){
-			System.out.println(tag_name+" n'est pas dans la base de données");
+			e.getMessage();
 		}
 	}
 	
@@ -266,7 +266,7 @@ public class BackEnd {
 			psVote.setInt(4, value);
 			psVote.executeQuery();
 		}catch(SQLException e){
-			System.out.println("Erreur de vote");
+			e.getMessage();
 		}
 	}
 	
